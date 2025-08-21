@@ -1,0 +1,48 @@
+.TrackCard {
+    display: flex;
+    background-color: var(--background); // même fond que ArtistCard
+    color: var(--foreground); // pour support dark mode
+    border-radius: 12px;
+    padding: 16px;
+    margin: 16px 0;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); // même ombre
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: scale(1.02);
+    }
+}
+
+.albumCover {
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-right: 20px;
+}
+
+.trackInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.trackName {
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.spotifyLink {
+    background-color: #1DB954;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 9999px;
+    text-decoration: none;
+    font-weight: bold;
+    width: fit-content;
+
+    &:hover {
+        background-color: #1aa34a;
+    }
+}

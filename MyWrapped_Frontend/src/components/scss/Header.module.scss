@@ -1,0 +1,156 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 30px;
+    border-bottom: 1px solid #ccc;
+}
+
+.logoSection {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.navLinks {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex: 1;
+
+    @media (max-width: 999px) {
+        display: none;
+    }
+}
+
+.authSection {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.link {
+    position: relative;
+    text-decoration: none;
+    color: black;
+    font-size: 1.2rem;
+    padding: 5px 15px;
+
+    &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 2px;
+        width: 100%;
+        background-color: #1DB954;
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform 0.3s ease;
+    }
+
+    &:hover::after {
+        transform: scaleX(1);
+    }
+}
+
+.active::after {
+    transform: scaleX(1);
+}
+
+.button {
+    background-color: #1DB954;
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    padding: 10px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &:hover {
+        background-color: #1AA34A;
+        transform: scale(1.05);
+    }
+}
+
+.logout {
+    background-color: #ff4d4f;
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &:hover {
+        background-color: #e04040;
+        transform: scale(1.05);
+    }
+}
+
+.darkModeButton {
+    background-color: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: scale(1.2);
+    }
+}
+
+.menuButton {
+    background-color: transparent;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    z-index: 1100;
+    color: #1AA34A; // default color for light mode
+
+    &:hover {
+        transform: scale(1.2);
+    }
+
+    @media (min-width: 999px) {
+        display: none;
+    }
+}
+
+
+.sidePanel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    background-color: #191414;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    padding: 30px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    a {
+        color: white;
+        font-size: 1.5rem;
+    }
+}
+
+.closeButton {
+    background-color: transparent;
+    border: none;
+    font-size: 24px;
+    color: white;
+    align-self: flex-end;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: scale(1.2);
+    }
+}

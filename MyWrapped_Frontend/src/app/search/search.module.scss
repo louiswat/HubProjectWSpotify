@@ -1,0 +1,129 @@
+.filters {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 32px;
+    width: 100%;
+}
+
+.toggleGroupTop {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    padding-bottom: 20px;
+    padding-top: 0px;
+    gap: 24px;
+
+    // ligne grise sous les boutons
+    &::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        height: 2px;
+        width: 20%;
+        background-color: var(--foreground);
+        opacity: 0.2;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    button {
+        background: transparent;
+        border: none;
+        padding: 8px 16px;
+        font-size: 1rem;
+        font-weight: bold;
+        color: var(--foreground);
+        cursor: pointer;
+        position: relative;
+
+        &:hover {
+            color: #1DB954;
+        }
+
+        &::after {
+            content: '';
+            position: absolute;
+            height: 2px;
+            width: 90%;
+            left: 5%;
+            bottom: -2px;
+            background-color: transparent;
+            transition: background-color 0.3s ease, width 0.3s ease;
+        }
+    }
+
+    .activeButton {
+        color: #1DB954;
+    }
+
+    .activeButton::after {
+        background-color: #1DB954;
+    }
+}
+
+.searchContainer {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    margin-top: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: var(--background);
+    color: var(--foreground);
+}
+
+.suggestions {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: var(--background);
+}
+
+.suggestionItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.suggestionDetails {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.trackInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.addButton {
+    margin-left: auto;
+    background-color: #1db954;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.addButton:hover {
+    background-color: #1ed760;
+}
+
+.loading {
+    margin-top: 10px;
+}

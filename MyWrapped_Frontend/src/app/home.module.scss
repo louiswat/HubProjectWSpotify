@@ -1,0 +1,112 @@
+.home {
+    padding: 40px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    color: var(--foreground);
+}
+
+.hero {
+    text-align: center;
+    margin-bottom: 60px;
+
+    h1 {
+        font-size: 3rem;
+        margin-bottom: 20px;
+    }
+
+    p {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+    }
+
+    .primaryButton {
+        background-color: #1DB954;
+        color: white;
+        padding: 12px 24px;
+        font-size: 1rem;
+        border-radius: 9999px;
+        border: none;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #1aa34a;
+        }
+    }
+}
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.featureCard {
+    background-color: var(--background);
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: translateY(-5px);
+    }
+
+    h2 {
+        margin-bottom: 12px;
+    }
+
+    p {
+        margin-bottom: 16px;
+    }
+
+    button {
+        padding: 8px 16px;
+        border-radius: 9999px;
+        background-color: transparent;
+        border: 1px solid #1DB954;
+        color: #1DB954;
+        font-weight: bold;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #1DB954;
+            color: white;
+        }
+    }
+}
+
+.button {
+    background-color: #1DB954;
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    padding: 10px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &:hover {
+        background-color: #1AA34A;
+        transform: scale(1.05);
+    }
+}
+
+.darkModeButton {
+    background-color: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: scale(1.2);
+    }
+}
+
+.errorMessage {
+    color: red;
+    font-weight: bold;
+    margin-top: 8px;
+    font-size: 0.9rem;
+}

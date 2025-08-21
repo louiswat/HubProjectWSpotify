@@ -1,0 +1,48 @@
+.artistCard {
+    display: flex;
+    background-color: var(--background);
+    color: var(--foreground);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 16px 0;
+    align-items: center;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: scale(1.02);
+    }
+}
+
+.artistImage {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 20px;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.artistName {
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.spotifyLink {
+    background-color: #1DB954;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 9999px;
+    text-decoration: none;
+    font-weight: bold;
+    width: fit-content;
+
+    &:hover {
+        background-color: #1aa34a;
+    }
+}

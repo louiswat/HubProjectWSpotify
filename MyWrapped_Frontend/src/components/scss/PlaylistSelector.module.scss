@@ -1,0 +1,36 @@
+.popup {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 12px;
+    border-radius: 8px;
+    z-index: 999;
+    top: 100%;
+    left: 0;
+    width: 200px;
+}
+
+.close {
+    float: right;
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.error {
+    color: red;
+}
+
+.playlistList {
+    list-style: none;
+    padding: 0;
+
+    li {
+        padding: 8px;
+        cursor: pointer;
+        &:hover {
+            background-color: #f1f1f1;
+        }
+    }
+}
