@@ -4,9 +4,6 @@
 **Date:** 2025‑08‑22  
 **Owner:** louiswat  
 
-
-> Note: **12 J/H** is the *final* project target. This mid/late snapshot reflects current delivered scope and a backlog to reach/extend that target later.
-
 ---
 
 ## 1) Overview
