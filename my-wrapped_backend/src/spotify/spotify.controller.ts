@@ -19,7 +19,7 @@ export class SpotifyController {
   constructor(
     private readonly http: HttpService,
     private readonly spotifyService: SpotifyService,
-  ) {}
+  ) { }
 
   private extractToken(authHeader: string): string {
     if (!authHeader?.startsWith('Bearer ')) {
@@ -108,49 +108,114 @@ export class SpotifyController {
 
 
   @Put('playlists/:id/details')
-async updatePlaylistDetails(
-  @Headers('authorization') authHeader: string,
-  @Param('id') id: string,
-  @Body() body: { name?: string; description?: string; isPublic?: boolean },
-) {
-  const token = this.extractToken(authHeader);
-  return this.spotifyService.updatePlaylistDetailsFromToken(
-    token,
-    id,
-    body?.name,
-    body?.description,
-    body?.isPublic,
-  );
-}
+  async updatePlaylistDetails(
+    @Headers('authorization') authHeader: string,
+    @Param('id') id: string,
+    @Body() body: { name?: string; description?: string; isPublic?: boolean },
+  ) {
+    const token = this.extractToken(authHeader);
+    return this.spotifyService.updatePlaylistDetailsFromToken(
+      token,
+      id,
+      body?.name,
+      body?.description,
+      body?.isPublic,
+    );
+  }
 
-// replace entire ordering with provided URIs (simple & robust)
-@Put('playlists/:id/replace')
-async replacePlaylistTracks(
-  @Headers('authorization') authHeader: string,
-  @Param('id') id: string,
-  @Body() body: { uris: string[] },
-) {
-  const token = this.extractToken(authHeader);
-  return this.spotifyService.replacePlaylistTracksFromToken(
-    token,
-    id,
-    Array.isArray(body?.uris) ? body.uris : [],
-  );
-}
+  // replace entire ordering with provided URIs (simple & robust)
+  @Put('playlists/:id/replace')
+  async replacePlaylistTracks(
+    @Headers('authorization') authHeader: string,
+    @Param('id') id: string,
+    @Body() body: { uris: string[] },
+  ) {
+    const token = this.extractToken(authHeader);
+    return this.spotifyService.replacePlaylistTracksFromToken(
+      token,
+      id,
+      Array.isArray(body?.uris) ? body.uris : [],
+    );
+  }
 
-// remove tracks (one or many) by URI
-@Delete('playlists/:id/tracks')
-async removeTracks(
-  @Headers('authorization') authHeader: string,
-  @Param('id') id: string,
-  @Body() body: { uris: string[]; snapshot_id?: string },
-) {
-  const token = this.extractToken(authHeader);
-  return this.spotifyService.removeTracksFromPlaylistFromToken(
-    token,
-    id,
-    Array.isArray(body?.uris) ? body.uris : [],
-    body?.snapshot_id,
-  );
-}
+  // remove tracks (one or many) by URI
+  @Delete('playlists/:id/tracks')
+  async removeTracks(
+    @Headers('authorization') authHeader: string,
+    @Param('id') id: string,
+    @Body() body: { uris: string[]; snapshot_id?: string },
+  ) {
+    const token = this.extractToken(authHeader);
+    return this.spotifyService.removeTracksFromPlaylistFromToken(
+      token,
+      id,
+      Array.isArray(body?.uris) ? body.uris : [],
+      body?.snapshot_id,
+    );
+  }
+
+
+  @Get('following/contains')
+  async followingContains(
+    @Query('ids') idsCsv: string,
+    @Query('type') type: 'artist' | 'user' = 'artist',
+    @Headers('authorization') authHeader: string,
+  ) {
+    if (type !== 'artist') {
+      // keep it strict for now; broaden later if you need users
+      throw new UnauthorizedException('Only artist following is supported');
+    }
+    const token = this.extractToken(authHeader);
+    const ids = (idsCsv || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    return this.spotifyService.checkFollowingArtists(token, ids);
+  }
+
+  @Put('following')
+  async follow(
+    @Query('ids') idsCsv: string,
+    @Query('type') type: 'artist' | 'user' = 'artist',
+    @Headers('authorization') authHeader: string,
+  ) {
+    if (type !== 'artist') {
+      throw new UnauthorizedException('Only artist following is supported');
+    }
+    const token = this.extractToken(authHeader);
+    const ids = (idsCsv || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    await this.spotifyService.followArtists(token, ids);
+    return { success: true };
+  }
+
+  @Delete('following')
+  async unfollow(
+    @Query('ids') idsCsv: string,
+    @Query('type') type: 'artist' | 'user' = 'artist',
+    @Headers('authorization') authHeader: string,
+  ) {
+    if (type !== 'artist') {
+      throw new UnauthorizedException('Only artist following is supported');
+    }
+    const token = this.extractToken(authHeader);
+    const ids = (idsCsv || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    await this.spotifyService.unfollowArtists(token, ids);
+    return { success: true };
+  }
+
+  @Get('artists/:id/top-tracks')
+  async getArtistTop(
+    @Param('id') id: string,
+    @Query('market') market: string,
+    @Headers('authorization') authHeader: string,
+  ) {
+    const token = this.extractToken(authHeader);
+    return this.spotifyService.getArtistTopTracks(token, id, market || 'US');
+  }
 }

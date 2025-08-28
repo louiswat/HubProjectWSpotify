@@ -8,6 +8,10 @@
     top: 100%;
     left: 0;
     width: 200px;
+
+    max-height: 60vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .close {
@@ -26,9 +30,15 @@
     list-style: none;
     padding: 0;
 
+    overflow-y: auto;
+    max-height: 48vh;
+    min-height: 0;
+    margin-top: 8px;
+
     li {
         padding: 8px;
         cursor: pointer;
+
         &:hover {
             background-color: #f1f1f1;
         }

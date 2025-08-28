@@ -11,6 +11,8 @@ const scopes = [
   "playlist-modify-public",
   "user-read-recently-played",
   "user-top-read",
+  "user-follow-read",
+  "user-follow-modify"
 ];
 
 // -------------- PKCE HELPERS ------------------

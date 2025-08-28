@@ -14,7 +14,6 @@
     padding-top: 0px;
     gap: 24px;
 
-    // ligne grise sous les boutons
     &::after {
         content: "";
         position: absolute;
@@ -101,11 +100,42 @@
     align-items: center;
     gap: 12px;
     flex: 1;
+    position: relative;
+    padding-right: 140px; // room for link + heart
 }
 
 .trackInfo {
     display: flex;
     flex-direction: column;
+    min-width: 0;
+}
+
+.trackInfo>strong {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Name as a text-styled button (for opening modal) */
+.artistNameButton {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: var(--foreground);
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+        color: #1DB954;
+        text-decoration: underline;
+    }
 }
 
 .addButton {
@@ -137,41 +167,79 @@
     font-weight: bold;
     width: fit-content;
 
+    position: absolute;
+    right: 56px; // leaves room for heart at 12px
+    top: 50%;
+    transform: translateY(-50%);
+
     &:hover {
         background-color: #1aa34a;
     }
 }
 
-.suggestionDetails {
-  position: relative;
-  padding-right: 140px;
+/* Follow (heart) button — visually centered */
+.followBtn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #1DB954;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    line-height: 0; // nuke baseline gap
 }
 
-.spotifyLink {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+.followBtn svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+    transform: translate(0.5px, 0.5px); // tiny optical nudge
 }
 
-.trackInfo {
-  min-width: 0;
+.followBtn svg path {
+    fill: transparent;
+    stroke: #1DB954;
+    stroke-width: 1.5;
 }
-.trackInfo > strong {
-  display: inline-block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+
+.following {
+    background: #1DB954;
+    border-color: #1DB954;
+}
+
+.following svg path {
+    fill: #ffffff;
+    stroke: #ffffff;
+}
+
+.followBtn:hover {
+    filter: brightness(1.05);
 }
 
 @media (max-width: 520px) {
-  .suggestionDetails { padding-right: 0; }
-  .spotifyLink {
-    position: static;
-    transform: none;
-    margin-left: auto;
-    margin-top: 6px;
-    display: inline-flex;
-  }
+    .suggestionDetails {
+        padding-right: 0;
+    }
+
+    .spotifyLink {
+        position: static;
+        transform: none;
+        margin-left: auto;
+        margin-top: 6px;
+        display: inline-flex;
+        right: auto;
+    }
+
+    .followBtn {
+        position: static;
+        transform: none;
+        margin-left: 8px;
+    }
 }

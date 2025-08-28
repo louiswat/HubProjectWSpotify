@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./search.module.scss";
-import Image from "next/image";
 import { formatDuration } from "@/utils/formatDuration";
-import PlaylistSelector from "@/components/PlaylistSelector";
+import TrackResultItem from "@/components/search/TrackResultItem";
+import ArtistResultItem from "@/components/search/ArtistResultItem";
+import ArtistTopModal from "@/components/search/ArtistTopModal";
 
 export default function Search() {
     const [type, setType] = useState<"track" | "artist">("track");
@@ -12,18 +13,19 @@ export default function Search() {
     const [results, setResults] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [token, setToken] = useState<string | null>(null);
-    const [activeTrack, setActiveTrack] = useState("");
-    const [selectorPosition, setSelectorPosition] = useState<{ x: number; y: number } | null>(null);
 
-    // Load the token once on mount
+    // follow state for artists
+    const [followed, setFollowed] = useState<Record<string, boolean>>({});
+
+    // modal state
+    const [selectedArtist, setSelectedArtist] = useState<{ id: string; name: string } | null>(null);
+
     useEffect(() => {
         const storedToken = localStorage.getItem("spotify_access_token");
-        if (storedToken) {
-            setToken(storedToken);
-        }
+        if (storedToken) setToken(storedToken);
     }, []);
 
-    // handle search
+    // search
     useEffect(() => {
         if (!query || !token) {
             setResults([]);
@@ -32,7 +34,7 @@ export default function Search() {
 
         const delay = setTimeout(() => {
             setLoading(true);
-            fetch(`http://localhost:3000/spotify/search?query=${query}&type=${type}`, {
+            fetch(`http://localhost:3000/spotify/search?query=${encodeURIComponent(query)}&type=${type}`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
                 .then((res) => {
@@ -40,8 +42,7 @@ export default function Search() {
                     return res.json();
                 })
                 .then((data) => {
-                    if (!Array.isArray(data)) return;
-                    setResults(data);
+                    if (Array.isArray(data)) setResults(data);
                 })
                 .catch(console.error)
                 .finally(() => setLoading(false));
@@ -50,9 +51,56 @@ export default function Search() {
         return () => clearTimeout(delay);
     }, [query, type, token]);
 
+    // clear results when switching type
     useEffect(() => {
         setResults([]);
     }, [type]);
+
+    // check following when showing artist results
+    useEffect(() => {
+        if (!token || type !== "artist" || results.length === 0) {
+            setFollowed({});
+            return;
+        }
+        const ids = results.map((a: any) => a.id).filter(Boolean);
+        const chunks: string[][] = [];
+        for (let i = 0; i < ids.length; i += 50) chunks.push(ids.slice(i, i + 50));
+
+        (async () => {
+            try {
+                const states: Record<string, boolean> = {};
+                for (const chunk of chunks) {
+                    const res = await fetch(
+                        `http://localhost:3000/spotify/following/contains?type=artist&ids=${chunk.join(",")}`,
+                        { headers: { Authorization: `Bearer ${token}` } }
+                    );
+                    if (!res.ok) throw new Error("follow check failed");
+                    const arr: boolean[] = await res.json();
+                    chunk.forEach((id, idx) => (states[id] = !!arr[idx]));
+                }
+                setFollowed(states);
+            } catch (e) {
+                console.error(e);
+            }
+        })();
+    }, [token, type, results]);
+
+    const toggleFollow = async (artistId: string) => {
+        if (!token || !artistId) return;
+        const isFollowing = !!followed[artistId];
+        try {
+            setFollowed((prev) => ({ ...prev, [artistId]: !isFollowing }));
+            const method = isFollowing ? "DELETE" : "PUT";
+            const res = await fetch(
+                `http://localhost:3000/spotify/following?type=artist&ids=${artistId}`,
+                { method, headers: { Authorization: `Bearer ${token}` } }
+            );
+            if (!res.ok) throw new Error("follow toggle failed");
+        } catch (e) {
+            console.error(e);
+            setFollowed((prev) => ({ ...prev, [artistId]: isFollowing }));
+        }
+    };
 
     return (
         <div className={styles.searchContainer}>
@@ -88,65 +136,32 @@ export default function Search() {
                     {results.map((item) => (
                         <li key={item.id} className={styles.suggestionItem}>
                             {type === "track" ? (
-                                <>
-                                    <div className={styles.suggestionDetails}>
-                                        <Image
-                                            src={item.album?.images?.[2]?.url || "/placeholder.png"}
-                                            alt="cover"
-                                            width={40}
-                                            height={40}
-                                        />
-                                        <div className={styles.trackInfo}>
-                                            <strong>{item.name}</strong>
-                                            <div>{item.artists?.map((a: any) => a.name).join(", ") || "Unknown artist"}</div>
-                                            <div><em>{item.album?.name}</em></div>
-                                            <div>{formatDuration(item.duration_ms)}</div>
-                                        </div>
-                                    </div>
-                                    <button
-                                        className={styles.addButton}
-                                        onClick={(e) => {
-                                            setActiveTrack(item.uri);
-                                            setSelectorPosition({ x: e.clientX, y: e.clientY });
-                                        }}
-                                    >
-                                        Add to Playlist
-                                    </button>
-                                    {activeTrack === item.uri && selectorPosition && (
-                                        <PlaylistSelector
-                                            token={token}
-                                            trackUri={item.uri}
-                                            onClose={() => setActiveTrack("")}
-                                            style={{
-                                                position: "absolute",
-                                                left: `${selectorPosition.x}px`,
-                                                top: `${selectorPosition.y}px`,
-                                                zIndex: 1000,
-                                            }}
-                                        />
-                                    )}
-                                </>
+                                <TrackResultItem
+                                    item={item}
+                                    token={token}
+                                    formatDuration={formatDuration}
+                                />
                             ) : (
-                                <>
-                                    <div className={styles.suggestionDetails}>
-                                        <Image
-                                            src={item.images?.[2]?.url || "/placeholder.png"}
-                                            alt="artist"
-                                            width={40}
-                                            height={40}
-                                        />
-                                        <div className={styles.trackInfo}>
-                                            <strong>{item.name}</strong>
-                                            <a href={item.external_urls.spotify} target="_blank" className={styles.spotifyLink}>Open in Spotify</a>
-                                            <div>{item.followers?.total.toLocaleString()} followers</div>
-                                        </div>
-                                    </div>
-                                </>
+                                <ArtistResultItem
+                                    item={item}
+                                    followed={!!followed[item.id]}
+                                    onToggleFollow={() => toggleFollow(item.id)}
+                                    onOpenTop={(artist) => setSelectedArtist(artist)}
+                                />
                             )}
                         </li>
                     ))}
                 </ul>
             )}
+
+            {/* Top tracks modal */}
+            <ArtistTopModal
+                isOpen={!!selectedArtist}
+                artist={selectedArtist}
+                token={token}
+                onClose={() => setSelectedArtist(null)}
+                formatDuration={formatDuration}
+            />
         </div>
     );
 }

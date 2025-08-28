@@ -141,55 +141,100 @@ export class SpotifyService {
   }
 
   async updatePlaylistDetailsFromToken(
-  token: string,
-  id: string,
-  name?: string,
-  description?: string,
-  isPublic?: boolean,
-) {
-  const body: any = {};
-  if (typeof name === 'string') body.name = name;
-  if (typeof description === 'string') body.description = description;
-  if (typeof isPublic === 'boolean') body.public = isPublic;
+    token: string,
+    id: string,
+    name?: string,
+    description?: string,
+    isPublic?: boolean,
+  ) {
+    const body: any = {};
+    if (typeof name === 'string') body.name = name;
+    if (typeof description === 'string') body.description = description;
+    if (typeof isPublic === 'boolean') body.public = isPublic;
 
-  const res = await firstValueFrom(
-    this.http.put(`https://api.spotify.com/v1/playlists/${id}`, body, {
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    }),
-  );
-  return { ok: true, snapshot_id: res.data?.snapshot_id };
-}
-
-// Replace the entire playlist items with the given URIs (supports up to 100 URIs per request)
-async replacePlaylistTracksFromToken(token: string, id: string, uris: string[]) {
-  if (!Array.isArray(uris) || uris.length === 0) {
-    return { ok: true };
+    const res = await firstValueFrom(
+      this.http.put(`https://api.spotify.com/v1/playlists/${id}`, body, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      }),
+    );
+    return { ok: true, snapshot_id: res.data?.snapshot_id };
   }
-  const res = await firstValueFrom(
-    this.http.put(`https://api.spotify.com/v1/playlists/${id}/tracks`, { uris }, {
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    }),
-  );
-  return { ok: true, snapshot_id: res.data?.snapshot_id };
-}
 
-// Remove tracks by URI (optionally pass snapshot_id for concurrency)
-async removeTracksFromPlaylistFromToken(
-  token: string,
-  id: string,
-  uris: string[],
-  snapshot_id?: string,
-) {
-  const body = {
-    tracks: (uris || []).map((u) => ({ uri: u })),
-    ...(snapshot_id ? { snapshot_id } : {}),
-  };
+  // Replace the entire playlist items with the given URIs (supports up to 100 URIs per request)
+  async replacePlaylistTracksFromToken(token: string, id: string, uris: string[]) {
+    if (!Array.isArray(uris) || uris.length === 0) {
+      return { ok: true };
+    }
+    const res = await firstValueFrom(
+      this.http.put(`https://api.spotify.com/v1/playlists/${id}/tracks`, { uris }, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      }),
+    );
+    return { ok: true, snapshot_id: res.data?.snapshot_id };
+  }
+
+  // Remove tracks by URI (optionally pass snapshot_id for concurrency)
+  async removeTracksFromPlaylistFromToken(
+    token: string,
+    id: string,
+    uris: string[],
+    snapshot_id?: string,
+  ) {
+    const body = {
+      tracks: (uris || []).map((u) => ({ uri: u })),
+      ...(snapshot_id ? { snapshot_id } : {}),
+    };
+    const res = await firstValueFrom(
+      this.http.delete(`https://api.spotify.com/v1/playlists/${id}/tracks`, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        data: body,
+      }),
+    );
+    return { ok: true, snapshot_id: res.data?.snapshot_id };
+  }
+
+  async checkFollowingArtists(token: string, ids: string[]) {
+    if (!ids?.length) return [];
+    const res = await firstValueFrom(
+      this.http.get('https://api.spotify.com/v1/me/following/contains', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { type: 'artist', ids: ids.join(',') },
+      }),
+    );
+    return res.data as boolean[];
+  }
+
+  async followArtists(token: string, ids: string[]) {
+    if (!ids?.length) return;
+    await firstValueFrom(
+      this.http.put(
+        'https://api.spotify.com/v1/me/following',
+        null,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { type: 'artist', ids: ids.join(',') },
+        },
+      ),
+    );
+  }
+
+  async unfollowArtists(token: string, ids: string[]) {
+    if (!ids?.length) return;
+    await firstValueFrom(
+      this.http.delete('https://api.spotify.com/v1/me/following', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { type: 'artist', ids: ids.join(',') },
+      }),
+    );
+  }
+
+  async getArtistTopTracks(token: string, artistId: string, market = "US") {
   const res = await firstValueFrom(
-    this.http.delete(`https://api.spotify.com/v1/playlists/${id}/tracks`, {
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      data: body,
+    this.http.get(`https://api.spotify.com/v1/artists/${artistId}/top-tracks`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { market },
     }),
   );
-  return { ok: true, snapshot_id: res.data?.snapshot_id };
+  return res.data.tracks;
 }
 }
