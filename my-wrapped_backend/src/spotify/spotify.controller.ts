@@ -8,6 +8,8 @@ import {
   Headers,
   UnauthorizedException,
   Param,
+  Put,
+  Delete
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { SpotifyService } from './spotify.service';
@@ -103,4 +105,52 @@ export class SpotifyController {
       Number(offset),
     );
   }
+
+
+  @Put('playlists/:id/details')
+async updatePlaylistDetails(
+  @Headers('authorization') authHeader: string,
+  @Param('id') id: string,
+  @Body() body: { name?: string; description?: string; isPublic?: boolean },
+) {
+  const token = this.extractToken(authHeader);
+  return this.spotifyService.updatePlaylistDetailsFromToken(
+    token,
+    id,
+    body?.name,
+    body?.description,
+    body?.isPublic,
+  );
+}
+
+// replace entire ordering with provided URIs (simple & robust)
+@Put('playlists/:id/replace')
+async replacePlaylistTracks(
+  @Headers('authorization') authHeader: string,
+  @Param('id') id: string,
+  @Body() body: { uris: string[] },
+) {
+  const token = this.extractToken(authHeader);
+  return this.spotifyService.replacePlaylistTracksFromToken(
+    token,
+    id,
+    Array.isArray(body?.uris) ? body.uris : [],
+  );
+}
+
+// remove tracks (one or many) by URI
+@Delete('playlists/:id/tracks')
+async removeTracks(
+  @Headers('authorization') authHeader: string,
+  @Param('id') id: string,
+  @Body() body: { uris: string[]; snapshot_id?: string },
+) {
+  const token = this.extractToken(authHeader);
+  return this.spotifyService.removeTracksFromPlaylistFromToken(
+    token,
+    id,
+    Array.isArray(body?.uris) ? body.uris : [],
+    body?.snapshot_id,
+  );
+}
 }

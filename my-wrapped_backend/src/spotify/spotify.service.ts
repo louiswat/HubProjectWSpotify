@@ -125,19 +125,71 @@ export class SpotifyService {
       owner: { display_name: header.owner?.display_name ?? '' },
       tracksTotal: header.tracks?.total ?? 0,
       public: !!header.public,
+      snapshotId: header.snapshot_id,
       tracks: items.map((it: any, idx: number) => ({
         position: offset + idx + 1,
         addedAt: it.added_at,
         id: it.track?.id,
+        uri: it.track?.uri,
         name: it.track?.name,
         durationMs: it.track?.duration_ms,
         explicit: !!it.track?.explicit,
         album: { id: it.track?.album?.id, name: it.track?.album?.name },
-        artists: (it.track?.artists || []).map((a: any) => ({
-          id: a.id,
-          name: a.name,
-        })),
+        artists: (it.track?.artists || []).map((a: any) => ({ id: a.id, name: a.name })),
       })),
     };
   }
+
+  async updatePlaylistDetailsFromToken(
+  token: string,
+  id: string,
+  name?: string,
+  description?: string,
+  isPublic?: boolean,
+) {
+  const body: any = {};
+  if (typeof name === 'string') body.name = name;
+  if (typeof description === 'string') body.description = description;
+  if (typeof isPublic === 'boolean') body.public = isPublic;
+
+  const res = await firstValueFrom(
+    this.http.put(`https://api.spotify.com/v1/playlists/${id}`, body, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    }),
+  );
+  return { ok: true, snapshot_id: res.data?.snapshot_id };
+}
+
+// Replace the entire playlist items with the given URIs (supports up to 100 URIs per request)
+async replacePlaylistTracksFromToken(token: string, id: string, uris: string[]) {
+  if (!Array.isArray(uris) || uris.length === 0) {
+    return { ok: true };
+  }
+  const res = await firstValueFrom(
+    this.http.put(`https://api.spotify.com/v1/playlists/${id}/tracks`, { uris }, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    }),
+  );
+  return { ok: true, snapshot_id: res.data?.snapshot_id };
+}
+
+// Remove tracks by URI (optionally pass snapshot_id for concurrency)
+async removeTracksFromPlaylistFromToken(
+  token: string,
+  id: string,
+  uris: string[],
+  snapshot_id?: string,
+) {
+  const body = {
+    tracks: (uris || []).map((u) => ({ uri: u })),
+    ...(snapshot_id ? { snapshot_id } : {}),
+  };
+  const res = await firstValueFrom(
+    this.http.delete(`https://api.spotify.com/v1/playlists/${id}/tracks`, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      data: body,
+    }),
+  );
+  return { ok: true, snapshot_id: res.data?.snapshot_id };
+}
 }
