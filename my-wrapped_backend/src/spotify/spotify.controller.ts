@@ -7,6 +7,7 @@ import {
   Query,
   Headers,
   UnauthorizedException,
+  Param,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { SpotifyService } from './spotify.service';
@@ -32,7 +33,6 @@ export class SpotifyController {
     if (!body.userId || !body.token) {
       throw new UnauthorizedException('Missing userId or token');
     }
-
     this.spotifyService.setUserToken(body.userId, body.token);
     return { success: true };
   }
@@ -60,7 +60,6 @@ export class SpotifyController {
     if (!authHeader?.startsWith('Bearer ')) {
       throw new UnauthorizedException('Missing or invalid token');
     }
-
     const token = authHeader.split(' ')[1];
     return this.spotifyService.searchWithToken(token, query, type);
   }
@@ -70,7 +69,38 @@ export class SpotifyController {
     if (!body.token) {
       throw new UnauthorizedException('Missing token');
     }
-
     return this.spotifyService.getProfileFromToken(body.token);
+  }
+
+  // --- NEW: playlists list (GET /spotify/playlists) ---
+  @Get('playlists')
+  async getPlaylists(
+    @Headers('authorization') authHeader: string,
+    @Query('limit') limit = '50',
+    @Query('offset') offset = '0',
+  ) {
+    const token = this.extractToken(authHeader);
+    return this.spotifyService.getUserPlaylistsFromToken(
+      token,
+      Number(limit),
+      Number(offset),
+    );
+  }
+
+  // --- NEW: playlist header + tracks (GET /spotify/playlists/:id) ---
+  @Get('playlists/:id')
+  async getPlaylist(
+    @Headers('authorization') authHeader: string,
+    @Param('id') id: string,
+    @Query('limit') limit = '100',
+    @Query('offset') offset = '0',
+  ) {
+    const token = this.extractToken(authHeader);
+    return this.spotifyService.getPlaylistWithTracksFromToken(
+      token,
+      id,
+      Number(limit),
+      Number(offset),
+    );
   }
 }

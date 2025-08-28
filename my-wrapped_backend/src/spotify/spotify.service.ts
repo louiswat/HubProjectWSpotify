@@ -81,4 +81,63 @@ export class SpotifyService {
       throw new UnauthorizedException('Failed to fetch user profile');
     }
   }
+
+  async getUserPlaylistsFromToken(token: string, limit = 50, offset = 0) {
+    const res = await firstValueFrom(
+      this.http.get('https://api.spotify.com/v1/me/playlists', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { limit, offset },
+      }),
+    );
+    // return an array so the frontend can consume it directly
+    return res.data?.items ?? [];
+  }
+
+  async getPlaylistWithTracksFromToken(
+    token: string,
+    id: string,
+    limit = 100,
+    offset = 0,
+  ) {
+    const [plRes, tracksRes] = await Promise.all([
+      firstValueFrom(
+        this.http.get(`https://api.spotify.com/v1/playlists/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ),
+      firstValueFrom(
+        this.http.get(`https://api.spotify.com/v1/playlists/${id}/tracks`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { limit, offset },
+        }),
+      ),
+    ]);
+
+    const header = plRes.data;
+    const items = tracksRes.data?.items ?? [];
+
+    // compact shape for the frontend detail page
+    return {
+      id: header.id,
+      name: header.name,
+      description: header.description,
+      images: header.images ?? [],
+      owner: { display_name: header.owner?.display_name ?? '' },
+      tracksTotal: header.tracks?.total ?? 0,
+      public: !!header.public,
+      tracks: items.map((it: any, idx: number) => ({
+        position: offset + idx + 1,
+        addedAt: it.added_at,
+        id: it.track?.id,
+        name: it.track?.name,
+        durationMs: it.track?.duration_ms,
+        explicit: !!it.track?.explicit,
+        album: { id: it.track?.album?.id, name: it.track?.album?.name },
+        artists: (it.track?.artists || []).map((a: any) => ({
+          id: a.id,
+          name: a.name,
+        })),
+      })),
+    };
+  }
 }

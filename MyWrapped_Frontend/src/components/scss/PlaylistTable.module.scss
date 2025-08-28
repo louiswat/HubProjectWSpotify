@@ -1,0 +1,52 @@
+.tableWrap {
+  border: 1px solid #e7e7e7;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead tr {
+    background: #fafafa;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 12px;
+    font-size: 14px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+}
+
+.coverCol { width: 72px; }
+.ownerCol { width: 220px; }
+.tracksCol { width: 100px; text-align: right; }
+.tracksCell { text-align: right; }
+
+.row:hover {
+  background: #fafafa;
+}
+
+.coverImg {
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.nameCell { max-width: 420px; }
+.nameLink {
+  font-weight: 600;
+  text-decoration: none;
+}
+.nameLink:hover { text-decoration: underline; }
+
+.ownerCell { color: #666; }
+
+.stateRow, .stateRowError {
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+}
+
+.stateRowError { color: #c0392b; }
