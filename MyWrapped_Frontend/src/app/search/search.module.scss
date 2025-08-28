@@ -127,3 +127,51 @@
 .loading {
     margin-top: 10px;
 }
+
+.spotifyLink {
+    background-color: #1DB954;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 9999px;
+    text-decoration: none;
+    font-weight: bold;
+    width: fit-content;
+
+    &:hover {
+        background-color: #1aa34a;
+    }
+}
+
+.suggestionDetails {
+  position: relative;
+  padding-right: 140px;
+}
+
+.spotifyLink {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.trackInfo {
+  min-width: 0;
+}
+.trackInfo > strong {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .suggestionDetails { padding-right: 0; }
+  .spotifyLink {
+    position: static;
+    transform: none;
+    margin-left: auto;
+    margin-top: 6px;
+    display: inline-flex;
+  }
+}

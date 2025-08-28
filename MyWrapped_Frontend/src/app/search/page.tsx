@@ -137,6 +137,7 @@ export default function Search() {
                                         />
                                         <div className={styles.trackInfo}>
                                             <strong>{item.name}</strong>
+                                            <a href={item.external_urls.spotify} target="_blank" className={styles.spotifyLink}>Open in Spotify</a>
                                             <div>{item.followers?.total.toLocaleString()} followers</div>
                                         </div>
                                     </div>
