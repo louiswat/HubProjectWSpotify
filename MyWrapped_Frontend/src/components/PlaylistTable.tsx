@@ -2,8 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import styles from "./scss/PlaylistTable.module.scss";
+import PlayableCover from "@/components/PlayableCover";
 
 type PlaylistItem = {
   id: string;
@@ -11,6 +11,7 @@ type PlaylistItem = {
   images?: { url: string }[];
   owner?: { display_name: string };
   tracks?: { total: number };
+  uri?: string;
 };
 
 export default function PlaylistTable({
@@ -57,12 +58,11 @@ export default function PlaylistTable({
             return (
               <tr key={p.id} className={styles.row}>
                 <td>
-                  <Image
+                  <PlayableCover
                     src={img}
-                    alt="cover"
-                    width={44}
-                    height={44}
-                    className={styles.coverImg}
+                    alt={p.name}
+                    size={56}
+                    contextUri={`spotify:playlist:${p.id}`}
                   />
                 </td>
                 <td className={styles.nameCell}>

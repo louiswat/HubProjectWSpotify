@@ -1,7 +1,9 @@
 .tableWrap {
-  border: 1px solid #e7e7e7;
+  border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
+  background: var(--raised);
+  box-shadow: var(--shadow);
 }
 
 .table {
@@ -9,44 +11,70 @@
   border-collapse: collapse;
 
   thead tr {
-    background: #fafafa;
+    background: var(--surface);
   }
 
-  th, td {
+  th,
+  td {
     text-align: left;
     padding: 12px;
-    font-size: 14px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  th {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  td {
+    vertical-align: middle;
   }
 }
 
-.coverCol { width: 72px; }
-.ownerCol { width: 220px; }
-.tracksCol { width: 100px; text-align: right; }
-.tracksCell { text-align: right; }
-
-.row:hover {
-  background: #fafafa;
+.coverCol {
+  width: 72px;
 }
 
-.coverImg {
-  border-radius: 8px;
-  object-fit: cover;
+.ownerCol {
+  width: 20%;
 }
 
-.nameCell { max-width: 420px; }
-.nameLink {
+.tracksCol {
+  width: 96px;
+  text-align: right;
+}
+
+.nameCell {
   font-weight: 600;
+}
+
+.nameLink {
+  color: var(--text);
   text-decoration: none;
 }
-.nameLink:hover { text-decoration: underline; }
 
-.ownerCell { color: #666; }
+.tracksCell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
 
-.stateRow, .stateRowError {
+.row:hover {
+  background: var(--hover);
+}
+
+.ownerCell {
+  color: var(--muted);
+}
+
+.stateRow,
+.stateRowError {
   text-align: center;
   padding: 20px;
   font-size: 14px;
+  color: var(--text);
 }
 
-.stateRowError { color: #c0392b; }
+.stateRowError {
+  color: var(--error);
+}

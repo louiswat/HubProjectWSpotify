@@ -12,7 +12,11 @@ const scopes = [
   "user-read-recently-played",
   "user-top-read",
   "user-follow-read",
-  "user-follow-modify"
+  "user-follow-modify",
+  "user-read-playback-state",
+  "user-modify-playback-state",
+  "user-read-currently-playing",
+  "streaming",
 ];
 
 // -------------- PKCE HELPERS ------------------

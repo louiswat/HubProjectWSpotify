@@ -1,0 +1,237 @@
+:root {
+    --player-accent: #1DB954;
+    --player-bg: color-mix(in srgb, var(--background) 94%, #000 6%);
+    --player-border: color-mix(in srgb, var(--foreground) 14%, transparent);
+    --player-text: var(--foreground);
+    --player-subtext: color-mix(in srgb, var(--foreground) 70%, transparent);
+    --player-ghost: color-mix(in srgb, var(--foreground) 12%, transparent);
+}
+
+.bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 50px;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    background: var(--player-bg);
+    border-top: 1px solid var(--player-border);
+    color: var(--player-text);
+    z-index: 999;
+    backdrop-filter: blur(8px);
+}
+
+.left,
+.center,
+.right {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+/* Left */
+.left {
+    gap: 12px;
+}
+
+.cover {
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.coverPlaceholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    background: var(--player-ghost);
+}
+
+.meta {
+    min-width: 0;
+}
+
+.title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.artist {
+    font-size: 0.82rem;
+    color: var(--player-subtext);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Center */
+.center {
+    flex-direction: column;
+    gap: 6px;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.small,
+.play {
+    background: transparent;
+    color: var(--player-text);
+    border: 1px solid transparent;
+    border-radius: 999px;
+    cursor: pointer;
+    padding: 6px 10px;
+    line-height: 1;
+    transition: transform 0.08s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.small:hover {
+    background: var(--player-ghost);
+}
+
+.play {
+    border-color: var(--player-border);
+    padding: 8px 14px;
+}
+
+.play:hover {
+    background: var(--player-ghost);
+    border-color: var(--player-accent);
+    color: var(--player-accent);
+}
+
+.timeline {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+}
+
+.time {
+    font-size: 0.75rem;
+    color: var(--player-subtext);
+    width: 42px;
+    text-align: center;
+}
+
+/* Seek slider */
+.seek {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(to right,
+            var(--player-accent) 0%,
+            var(--player-accent) var(--_pct, 0%),
+            var(--player-ghost) var(--_pct, 0%),
+            var(--player-ghost) 100%);
+    border-radius: 999px;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Update the fill without JS via CSS trick */
+.seek {
+    --_pct: 0%;
+}
+
+.seek:dir(ltr) {
+    /* noop for LTR */
+}
+
+/* style thumb */
+.seek::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--player-accent);
+    border: 2px solid color-mix(in srgb, var(--background) 75%, transparent);
+    margin-top: -4px;
+    /* center the thumb vertically over 6px track */
+}
+
+.seek::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: 2px solid color-mix(in srgb, var(--background) 75%, transparent);
+    border-radius: 50%;
+    background: var(--player-accent);
+}
+
+/* Right (volume) */
+.right {
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.volume {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 120px;
+    height: 6px;
+    background: var(--player-ghost);
+    border-radius: 999px;
+    cursor: pointer;
+    outline: none;
+}
+
+.volume::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--player-accent);
+    border: 2px solid color-mix(in srgb, var(--background) 75%, transparent);
+    margin-top: -4px;
+}
+
+.volume::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: 2px solid color-mix(in srgb, var(--background) 75%, transparent);
+    border-radius: 50%;
+    background: var(--player-accent);
+}
+
+/* Responsive */
+@media (max-width: 920px) {
+    .bar {
+        grid-template-columns: 1.2fr 2fr 0.8fr;
+        height: 84px;
+    }
+
+    .volume {
+        width: 100px;
+    }
+}
+
+@media (max-width: 720px) {
+    .bar {
+        grid-template-columns: 1fr 1.4fr 1fr;
+    }
+
+    .title {
+        max-width: 150px;
+    }
+
+    .timeline {
+        display: none;
+    }
+
+    /* keep compact on small screens */
+}

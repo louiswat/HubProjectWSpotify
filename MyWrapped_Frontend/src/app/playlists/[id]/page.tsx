@@ -5,20 +5,23 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import styles from "./detail.module.scss";
 import { formatDuration } from "@/utils/formatDuration";
+import PlayableCover from "@/components/PlayableCover";
 
 type TrackRow = {
   position: number;
-  id: string | undefined;
-  uri: string | undefined;
-  name: string | undefined;
-  durationMs: number | undefined;
+  id?: string;
+  uri?: string;
+  name?: string;
+  durationMs?: number;
   explicit: boolean;
   album?: { id?: string; name?: string };
   artists: { id?: string; name?: string }[];
+  image?: string | null;
 };
 
 type PlaylistPayload = {
   id: string;
+  uri?: string;
   name: string;
   description: string | null;
   images: { url: string }[];
@@ -26,7 +29,7 @@ type PlaylistPayload = {
   public: boolean;
   tracksTotal: number;
   tracks: TrackRow[];
-  snapshotId?: string; // may be undefined on first fetch if backend didn't include; safe optional
+  snapshotId?: string;
 };
 
 export default function PlaylistDetailPage() {
@@ -45,7 +48,7 @@ export default function PlaylistDetailPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
-  // local track order (we’ll persist on “Save order”)
+  // local track order
   const [rows, setRows] = useState<TrackRow[]>([]);
 
   // read-only flag if user doesn't own the playlist
@@ -55,6 +58,65 @@ export default function PlaylistDetailPage() {
     setToken(localStorage.getItem("spotify_access_token"));
   }, []);
 
+  const hydrateImages = async (list: TrackRow[], auth: string): Promise<TrackRow[]> => {
+    const need = list.filter((r) => !r.image);
+    if (need.length === 0) return list;
+
+    const trackIds = Array.from(new Set(need.map((r) => r.id).filter(Boolean))) as string[];
+    const albumIds = Array.from(
+      new Set(need.map((r) => r.album?.id).filter(Boolean))
+    ) as string[];
+
+    const imgByTrack: Record<string, string> = {};
+    const imgByAlbum: Record<string, string> = {};
+
+    // fetch tracks in chunks of 50
+    for (let i = 0; i < trackIds.length; i += 50) {
+      const ids = trackIds.slice(i, i + 50).join(",");
+      try {
+        const res = await fetch(`https://api.spotify.com/v1/tracks?ids=${ids}`, {
+          headers: { Authorization: `Bearer ${auth}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          (data.tracks || []).forEach((t: any) => {
+            const img =
+              t?.album?.images?.[2]?.url ||
+              t?.album?.images?.[1]?.url ||
+              t?.album?.images?.[0]?.url;
+            if (t?.id && img) imgByTrack[t.id] = img;
+          });
+        }
+      } catch {
+      }
+    }
+
+    // fetch albums in chunks of 20 (Spotify limit)
+    for (let i = 0; i < albumIds.length; i += 20) {
+      const ids = albumIds.slice(i, i + 20).join(",");
+      try {
+        const res = await fetch(`https://api.spotify.com/v1/albums?ids=${ids}`, {
+          headers: { Authorization: `Bearer ${auth}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          (data.albums || []).forEach((a: any) => {
+            const img = a?.images?.[2]?.url || a?.images?.[1]?.url || a?.images?.[0]?.url;
+            if (a?.id && img) imgByAlbum[a.id] = img;
+          });
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    return list.map((r) => {
+      if (r.image) return r;
+      const img = (r.id && imgByTrack[r.id]) || (r.album?.id && imgByAlbum[r.album.id]) || null;
+      return { ...r, image: img };
+    });
+  };
+
   // initial fetch
   useEffect(() => {
     if (!token || !playlistId) return;
@@ -62,19 +124,27 @@ export default function PlaylistDetailPage() {
       try {
         setLoading(true);
         setError(null);
+
         const res = await fetch(`http://localhost:3000/spotify/playlists/${playlistId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error(`Failed to load playlist (${res.status})`);
         const payload: PlaylistPayload = await res.json();
+
         setData(payload);
         setName(payload.name);
         setDescription(payload.description ?? "");
-        // sort by position just in case
-        const sorted = [...payload.tracks].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
-        setRows(sorted);
 
-        // client-side ownership check (read-only if not owner)
+        // sort by position
+        const sorted = [...payload.tracks].sort(
+          (a, b) => (a.position ?? 0) - (b.position ?? 0)
+        );
+
+        // hydrate images once, then set rows
+        const withImages = await hydrateImages(sorted, token);
+        setRows(withImages);
+
+        // ownership check (read-only if not owner)
         try {
           const [meRes, plRes] = await Promise.all([
             fetch("https://api.spotify.com/v1/me", {
@@ -103,6 +173,10 @@ export default function PlaylistDetailPage() {
   }, [token, playlistId]);
 
   const cover = useMemo(() => data?.images?.[0]?.url || "/placeholder.png", [data]);
+  const playlistUri = useMemo(
+    () => data?.uri || (data?.id ? `spotify:playlist:${data.id}` : ""),
+    [data]
+  );
 
   const moveRow = (index: number, direction: "up" | "down") => {
     setRows((prev) => {
@@ -132,8 +206,9 @@ export default function PlaylistDetailPage() {
         body: JSON.stringify({ uris: [row.uri] }),
       });
       if (!res.ok) throw new Error("Failed to remove track");
-      // update UI
-      setRows((prev) => prev.filter((_, i) => i !== index).map((r, i) => ({ ...r, position: i + 1 })));
+      setRows((prev) =>
+        prev.filter((_, i) => i !== index).map((r, i) => ({ ...r, position: i + 1 }))
+      );
     } catch (e: any) {
       setError(e.message || "Error removing track");
     } finally {
@@ -150,7 +225,8 @@ export default function PlaylistDetailPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}` },
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           name: name?.trim() || undefined,
           description: description ?? "",
@@ -166,7 +242,6 @@ export default function PlaylistDetailPage() {
 
   const saveOrder = async () => {
     if (!token || !playlistId) return;
-    // Replace the playlist items with the current order (supports up to 100 URIs in one shot)
     const uris = rows.map((r) => r.uri).filter(Boolean) as string[];
     try {
       setSaving(true);
@@ -175,7 +250,8 @@ export default function PlaylistDetailPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}` },
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ uris }),
       });
       if (!res.ok) throw new Error("Failed to save order");
@@ -215,7 +291,8 @@ export default function PlaylistDetailPage() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <Image src={cover} alt="cover" width={128} height={128} className={styles.cover} unoptimized />
+        <PlayableCover src={cover} alt={data.name} size={128} uri={playlistUri} />
+
         <div className={styles.meta}>
           <input
             className={styles.titleInput}
@@ -242,7 +319,11 @@ export default function PlaylistDetailPage() {
             <button className={styles.primary} onClick={saveDetails} disabled={!canEdit || saving}>
               Save details
             </button>
-            <button className={styles.secondary} onClick={() => router.push("/playlists")} disabled={saving}>
+            <button
+              className={styles.secondary}
+              onClick={() => router.push("/playlists")}
+              disabled={saving}
+            >
               Back
             </button>
           </div>
@@ -266,9 +347,17 @@ export default function PlaylistDetailPage() {
               <tr key={`${t.id}-${i}`}>
                 <td>{i + 1}</td>
                 <td className={styles.titleCell}>
-                  <div className={styles.titleStack}>
-                    <span className={styles.song}>{t.name || "Unknown"}</span>
-                    {t.explicit && <span className={styles.explicit}>E</span>}
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <PlayableCover
+                      src={t.image || "/placeholder.png"}
+                      alt={t.name || ""}
+                      size={56}
+                      uri={t.uri || ""}
+                    />
+                    <div style={{ minWidth: 0 }}>
+                      <span className={styles.song}>{t.name || "Unknown"}</span>
+                      {t.explicit && <span className={styles.explicit}>E</span>}
+                    </div>
                   </div>
                 </td>
                 <td className={styles.artistCell}>
@@ -309,7 +398,9 @@ export default function PlaylistDetailPage() {
 
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className={styles.empty}>No tracks.</td>
+                <td colSpan={6} className={styles.empty}>
+                  No tracks.
+                </td>
               </tr>
             )}
           </tbody>
@@ -317,7 +408,11 @@ export default function PlaylistDetailPage() {
       </section>
 
       <footer className={styles.footerBar}>
-        <button className={styles.primary} onClick={saveOrder} disabled={!canEdit || saving || rows.length === 0}>
+        <button
+          className={styles.primary}
+          onClick={saveOrder}
+          disabled={!canEdit || saving || rows.length === 0}
+        >
           Save order
         </button>
         <a

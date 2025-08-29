@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import Image from 'next/image';
 import styles from "./scss/TrackCard.module.scss";
 import { formatDuration } from "@/utils/formatDuration";
+import PlayableCover from "@/components/PlayableCover";
 
 
 interface TrackCardProps {
@@ -31,12 +31,11 @@ export default function TrackCard({
 
     return (
         <div className={styles.TrackCard}>
-            <Image
-                src={image}
-                alt={album}
-                className={styles.albumCover}
-                width={200}
-                height={200}
+            <PlayableCover
+                src={image || "/placeholder.png"}
+                alt={name}
+                size={200}
+                uri={spotifyUrl}
             />
             <div className={styles.trackInfo}>
                 <div className={styles.trackName}>{name}</div>

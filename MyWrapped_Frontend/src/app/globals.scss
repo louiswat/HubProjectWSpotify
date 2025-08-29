@@ -32,4 +32,106 @@ body.dark {
 
 body.dark a {
   color: white;
+}/* globals.scss */
+
+/* LIGHT (default) */
+:root {
+  /* base */
+  --bg: #ffffff;
+  --text: #171717;
+  --muted: #666666;
+
+  /* surfaces */
+  --surface: #fafafa;      /* table headers / subtle panels */
+  --card: #fdfdfd;         /* cards */
+  --raised: #ffffff;       /* popups / modals */
+  --hover: #f1f1f1;
+
+  /* lines / dividers */
+  --border: #e5e5e5;
+
+  /* overlays & shadows */
+  --overlay: rgba(0,0,0,0.5);
+  --shadow: 0 10px 30px rgba(0,0,0,0.08);
+
+  /* inputs */
+  --input-bg: #ffffff;
+
+  /* brand */
+  --accent: #1DB954;
+  --accent-contrast: #ffffff;
+
+  /* states */
+  --error: #c0392b;
+}
+
+/* DARK (via .dark on <body>) */
+body.dark {
+  --bg: #0a0a0a;
+  --text: #ededed;
+  --muted: #a1a1aa;
+
+  --surface: #121212;
+  --card: #121212;
+  --raised: #181818;
+  --hover: #1a1a1a;
+
+  --border: #2b2b2b;
+
+  --overlay: rgba(0,0,0,0.6);
+  --shadow: 0 10px 30px rgba(0,0,0,0.4);
+
+  --input-bg: #0f0f0f;
+
+  --accent: #1DB954;
+  --accent-contrast: #000000;
+
+  --error: #ff6b6b;
+}
+
+/* global base */
+html, body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+
+.page-shell {
+  min-height: 100dvh;
+  padding-bottom: 84px;
+}
+
+.playableCover {
+  position: relative;
+  display: inline-block;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.playableCover img {
+  display: block;
+}
+
+.playableCover .overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+
+.playableCover:hover .overlay {
+  opacity: 1;
+}
+
+.playableCover .playBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: #1DB954;
+  color: #fff;
+  border: 0;
+  cursor: pointer;
 }

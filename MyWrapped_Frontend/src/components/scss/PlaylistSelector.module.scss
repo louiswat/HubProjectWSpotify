@@ -1,46 +1,69 @@
+/* Popup container */
 .popup {
-    position: absolute;
-    background: white;
-    border: 1px solid #ccc;
-    padding: 12px;
-    border-radius: 8px;
-    z-index: 999;
-    top: 100%;
-    left: 0;
-    width: 200px;
-
-    max-height: 60vh;
-    display: flex;
-    flex-direction: column;
+  position: absolute;         /* keep your positioning from the parent via `style` prop */
+  top: 100%;
+  left: 0;
+  width: 200px;
+  padding: 12px;
+  border-radius: 8px;
+  z-index: 10000;             /* make sure it's above surrounding layers */
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #ccc);
+  color: var(--text, inherit);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+  pointer-events: auto;       /* ensure clicks are received */
+  display: flex;
+  flex-direction: column;
+  max-height: 60vh;
 }
 
+/* Close button (same behavior, just color tokens) */
 .close {
-    float: right;
-    background: transparent;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
+  align-self: flex-end;
+  border: 1px solid var(--border, #ccc);
+  background: var(--surface, #fff);
+  color: var(--text, #111);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--hover, #f1f1f1);
+  }
 }
 
+/* Error text colorized via token */
 .error {
-    color: red;
+  color: var(--error, #c0392b);
+  margin: 8px 0 0;
 }
 
+/* The list you render in the component */
 .playlistList {
-    list-style: none;
-    padding: 0;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  max-height: 48vh;
+  min-height: 0;
 
-    overflow-y: auto;
-    max-height: 48vh;
-    min-height: 0;
-    margin-top: 8px;
+  /* Make items obviously interactive */
+  li {
+    display: block;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    color: var(--text, inherit);
 
-    li {
-        padding: 8px;
-        cursor: pointer;
-
-        &:hover {
-            background-color: #f1f1f1;
-        }
+    &:hover {
+      background: var(--hover, #f1f1f1);
     }
+
+    &:active {
+      transform: translateY(0.5px);
+    }
+  }
 }

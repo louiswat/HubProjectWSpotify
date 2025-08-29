@@ -1,3 +1,6 @@
+/* detail.module.scss — layout unchanged, dark mode via body.dark */
+
+/* ===== Layout ===== */
 .container {
   max-width: 1120px;
   margin: 0 auto;
@@ -11,21 +14,16 @@
   margin-bottom: 16px;
 }
 
-.cover {
-  border-radius: 12px;
-  object-fit: cover;
-}
+.cover { border-radius: 12px; object-fit: cover; }
 
-.meta {
-  display: grid;
-  gap: 10px;
-}
+.meta { display: grid; gap: 10px; }
 
+/* ===== Inputs ===== */
 .titleInput {
   font-size: 22px;
   font-weight: 600;
   padding: 8px 10px;
-  border: 1px solid #e7e7e7;
+  border: 1px solid var(--border, #e7e7e7);
   border-radius: 10px;
   background: var(--background);
   color: var(--foreground);
@@ -34,58 +32,59 @@
 .descInput {
   font-size: 14px;
   padding: 8px 10px;
-  border: 1px solid #e7e7e7;
+  border: 1px solid var(--border, #e7e7e7);
   border-radius: 10px;
   background: var(--background);
   color: var(--foreground);
   resize: vertical;
 }
 
-.metaRow {
-  color: #666;
-  font-size: 13px;
-}
+.metaRow { color: var(--muted, #666); font-size: 13px; }
 
-.actions {
-  display: flex;
-  gap: 10px;
-}
+/* ===== Buttons ===== */
+.actions { display: flex; gap: 10px; }
 
-.primary, .secondary, .dangerSmall, .smallBtn {
+.primary,
+.secondary,
+.dangerSmall,
+.smallBtn {
   border-radius: 9999px;
   padding: 8px 12px;
   font-size: 14px;
   cursor: pointer;
-  border: 1px solid #ddd;
-  background: #fff;
+  border: 1px solid var(--border, #ddd);
+  background: var(--background);
+  color: var(--foreground);
 }
 
 .primary {
-  background: #1db954;
+  background: #1db954;           /* brand */
   border-color: #1db954;
-  color: white;
+  color: #fff;
 }
 .primary:hover { background: #1ed760; border-color: #1ed760; }
 
-.secondary:hover { background: #f7f7f7; }
+.secondary:hover,
+.smallBtn:hover { background: var(--hover, #f7f7f7); }
 
+/* Remove button (light mode) */
 .dangerSmall {
-  background: #ffefef;
-  border-color: #ffdede;
-  color: #c0392b;
   padding: 6px 10px;
+  background: var(--error-soft-bg, #ffefef);
+  border-color: var(--error-border, #ffdede);
+  color: var(--error, #c0392b);
 }
-.dangerSmall:hover { background: #ffe6e6; }
+.dangerSmall:hover { background: var(--error-soft-hover-bg, #ffe6e6); }
 
-.smallBtn {
-  padding: 6px 10px;
-}
+.smallBtn { padding: 6px 10px; }
 
+/* ===== Table ===== */
 .tableWrap {
-  border: 1px solid #e7e7e7;
+  border: 1px solid var(--border, #e7e7e7);
   border-radius: 14px;
   overflow: hidden;
   margin-top: 12px;
+  background: var(--surface, var(--background));
 }
 
 .table {
@@ -93,46 +92,54 @@
   border-collapse: collapse;
 
   thead tr {
-    background: #fafafa;
+    background: var(--table-head-bg, var(--background)); /* light header */
   }
 
+  tbody tr { background: var(--surface, var(--background)); }
+  tbody tr:hover { background: var(--hover, #f7f7f7); }
+
   th, td {
+    background: transparent; /* let row bg show */
     text-align: left;
     padding: 10px 12px;
     font-size: 14px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--row-border, #f0f0f0);
+    color: var(--foreground);
   }
 }
 
-.posCol { width: 60px; }
-.artistCol { width: 260px; }
+/* Column widths */
+.posCol   { width: 60px; }
+.artistCol{ width: 260px; }
 .albumCol { width: 260px; }
-.timeCol { width: 90px; text-align: right; }
-.actCol { width: 180px; text-align: right; }
-.timeCell { text-align: right; }
+.timeCol  { width: 90px;  text-align: right; }
+.actCol   { width: 180px; text-align: right; }
+
+.timeCell    { text-align: right; }
 .actionsCell { text-align: right; }
 
 .titleCell { max-width: 460px; }
 .titleStack { display: inline-flex; align-items: center; gap: 6px; }
-.song { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; max-width: 420px; }
+
+.song {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  max-width: 420px;
+}
+
 .explicit {
   font-size: 10px;
   padding: 2px 4px;
   border-radius: 4px;
-  background: #222;
-  color: #fff;
+  background: var(--badge-bg, #222);
+  color: var(--badge-text, #fff);
 }
 
-.rowActions {
-  display: inline-flex;
-  gap: 8px;
-}
+.rowActions { display: inline-flex; gap: 8px; }
 
-.empty {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-}
+.empty { text-align: center; padding: 20px; color: var(--muted, #666); }
 
 .footerBar {
   display: flex;
@@ -142,13 +149,12 @@
 }
 
 .error {
-  color: #c0392b;
-  background: #fff3f3;
-  border: 1px solid #ffdede;
+  color: var(--error, #c0392b);
+  background: var(--error-bg, #fff3f3);
+  border: 1px solid var(--error-border, #ffdede);
   border-radius: 10px;
   padding: 10px 12px;
 }
-
 
 .actions button:disabled,
 .rowActions button:disabled,
@@ -156,4 +162,60 @@
   opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+/* ===== Dark mode (triggered by body.dark) ===== */
+body.dark {
+  /* Table header background so white text isn’t on white */
+  .table thead tr {
+    background: #1c1c22; /* dark header surface */
+  }
+
+  /* Keep table/body rows dark */
+  .tableWrap { background: var(--surface, #141419); }
+  .table tbody tr { background: var(--surface, #141419); }
+  .table tbody tr:hover { background: var(--hover, #1c1c22); }
+
+  /* Softer “danger” for Remove button in dark */
+  .dangerSmall {
+    background: rgba(248, 113, 113, 0.12); /* soft red tint */
+    border-color: #3a1a1c;                 /* deep red border */
+    color: #f87171;                        /* readable red text */
+  }
+  .dangerSmall:hover {
+    background: rgba(248, 113, 113, 0.18);
+  }
+
+  /* Secondary/small buttons stay on dark surface */
+  .secondary,
+  .smallBtn {
+    background: var(--background);  /* your dark background */
+    color: var(--foreground);
+  }
+  .secondary:hover,
+  .smallBtn:hover {
+    background: var(--hover, #1c1c22);
+  }
+
+  /* Inputs keep dark surface */
+  .titleInput,
+  .descInput {
+    border-color: var(--border, #2a2a2a);
+    background: var(--background);
+    color: var(--foreground);
+  }
+
+  /* Table dividers */
+  .table th,
+  .table td {
+    border-bottom-color: var(--row-border, #232323);
+  }
+
+  .empty { color: var(--muted, #a1a1aa); }
+
+  .error {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.12);
+    border-color: #3a1a1c;
+  }
 }
